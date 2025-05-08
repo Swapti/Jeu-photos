@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Classement d'images</title>
+<style>
+body {
+font-family: sans-serif;
+text-align: center;
+margin: 20px;
+}
+
+#images {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+justify-content: center;
+}
+
+.image-container {
+width: 120px;
+height: 120px;
+cursor: move;
+border: 2px solid #ccc;
+overflow: hidden;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.image-container.dragging {
+opacity: 0.5;
+}
+
+.image-container img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+#result {
+margin-top: 20px;
+font-size: 2em;
+font-weight: bold;
+padding: 15px;
+border-radius: 10px;
+display: inline-block;
+background-color: #d4edda;
+color: #155724;
+border: 2px solid #c3e6cb;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+button {
+margin-top: 20px;
+padding: 10px 20px;
+font-size: 1em;
+}
+</style>
+</head>
+<body>
+
+<h2>Classe les images dans le bon ordre !</h2>
+
+<div id="images"></div>
+<button onclick="checkOrder()">Vérifier</button>
+<div id="result"></div>
+
+<script>
+const imagePaths = [
+"SAbri 2004 vdef.JPG",
+"Sabri 2005 vdef.JPG",
+"Sabri 2007 vdef.JPG",
+"SAbri 2008 vdef.JPG",
+"SABRI 2013 vdef.JPEG",
+"SAbri 2014 vdef.jpg",
+"SAbri 2018 vdef.JPEG",
+"Sabri 2020.JPEG",
+"SAbri 2023 vdef.JPEG",
+"Sabri 2024 Vdef.JPEG"
+];
+
+const correctOrder = [...imagePaths];
+const shuffled = [...imagePaths].sort(() => 0.5 - Math.random());
+const container = document.getElementById("images");
+let draggedElement = null;
+
+function createImageElement(src) {
+const div = document.createElement("div");
+div.className = "image-container";
+div.draggable = true;
+
+const img = document.createElement("img");
+img.src = src;
+div.appendChild(img);
+
+div.addEventListener("dragstart", () => {
+draggedElement = div;
+div.classList.add("dragging");
+});
+
+div.addEventListener("dragend", () => {
+draggedElement = null;
+div.classList.remove("dragging");
+});
+
+div.addEventListener("dragover", (e) => {
+e.preventDefault();
+});
+
+div.addEventListener("drop", (e) => {
+e.preventDefault();
+if (draggedElement && draggedElement !== div) {
+const draggedIndex = [...container.children].indexOf(draggedElement);
+const targetIndex = [...container.children].indexOf(div);
+if (draggedIndex < targetIndex) {
+container.insertBefore(draggedElement, div.nextSibling);
+} else {
+container.insertBefore(draggedElement, div);
+}
+}
+});
+
+return div;
+}
+
+function loadImages() {
+shuffled.forEach(src => {
+container.appendChild(createImageElement(src));
+});
+}
+
+function checkOrder() {
+const currentOrder = [...container.children].map(div => {
+const full = div.querySelector("img").src;
+return decodeURIComponent(full.substring(full.lastIndexOf("/") + 1));
+});
+
+const resultBox = document.getElementById("result");
+
+if (JSON.stringify(currentOrder) === JSON.stringify(correctOrder)) {
+resultBox.textContent = "Gagné !";
+resultBox.style.backgroundColor = "#d4edda"; // vert clair
+resultBox.style.color = "#155724"; // vert foncé
+resultBox.style.border = "2px solid #c3e6cb"; // bordure verte
+} else {
+resultBox.textContent = "Ce n'est pas encore bon. Essaie encore.";
+resultBox.style.backgroundColor = "#f8d7da"; // rouge clair
+resultBox.style.color = "#721c24"; // rouge foncé
+resultBox.style.border = "2px solid #f5c6cb"; // bordure rouge
+}
+}
+loadImages();
+</script>
+
+</body>
+</html>
